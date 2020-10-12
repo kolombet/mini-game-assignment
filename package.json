@@ -31,9 +31,7 @@
     "pixi-sound": "^3.0.5",
     "prettier": "^2.1.2",
     "typescript": "^4.0.3",
-    "vercel": "^19.1.2"
-  },
-  "dependencies": {
+    "vercel": "^19.1.2",
     "gsap": "^3.5.1"
   }
 }
