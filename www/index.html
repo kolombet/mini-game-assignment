@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+
+    <link rel="apple-touch-icon" sizes="57x57" href="favicon/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="favicon/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="favicon/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="favicon/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="favicon/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="favicon/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="favicon/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="favicon/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="favicon/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="favicon/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
+    <link rel="manifest" href="favicon/manifest.json">
+    <meta name="msapplication-TileColor" content="#ffffffff">
+    <meta name="msapplication-TileImage" content="favicon/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+    <!-- System js-->
+    <script src="./js/system.js"></script>
+
+    <!-- Pixi -->
+    <script src="./js/pixi.js"></script>
+
+    <!--STATS-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stats.js/r16/Stats.min.js"></script>
+    <script src="./js/gstats.js"></script>
+
+    <!-- Particles -->
+    <script src="../js/pixi-particles.js"></script>
+
+    <!-- Greensock tween -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.5.1/gsap.min.js"></script>
+
+
+    <title>Pixi ts bundler</title>
+</head>
+
+<body>
+
+<canvas id="main-canvas" class="canvas"></canvas>
+<div id="html-root" class="root"></div>
+
+
+<script>
+    window.majorVersion = '0.001';
+
+    /**
+     * Prevent body scroll on mobile
+     */
+    document.addEventListener('touchmove', function (event) {
+        event = event.originalEvent || event;
+        if (event.scale !== undefined && event.scale !== 1) {
+            event.preventDefault();
+        }
+    }, false);
+
+    var isLocal = (location.hostname === "localhost" || location.hostname === "127.0.0.1")
+    var bundle = './js/index.js?version=' + window.majorVersion;
+    System.import(bundle)
+        .then(function () {
+            System.import('main')
+                .then(function (main) {
+                    console.log('loaded', window);
+                    main.default.init();
+                })
+                .catch(function (error) {
+                    console.error(error);
+                });
+        });
+</script>
+
+</body>
+
+</html>

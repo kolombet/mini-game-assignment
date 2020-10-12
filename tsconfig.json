@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "module": "system",
+    "moduleResolution": "node",
+    "pretty": true,
+    "target": "es6",
+    "lib": [
+      "es2017",
+      "dom"
+    ],
+    "outDir": "./www/js",
+    "skipLibCheck": true,
+    "baseUrl": "./src",
+    "outFile": "./www/js/index.js",
+    "strict": true,
+    "strictPropertyInitialization": false,
+    "noImplicitAny": false,
+    "jsx": "react",
+    "allowSyntheticDefaultImports": true,
+    "sourceMap": false
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules"
+  ],
+  "files": [
+    "node_modules/gsap/types/index.d.ts",
+    "node_modules/pixi-particles/ambient.d.ts",
+  ]
+}
