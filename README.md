@@ -17,7 +17,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 <br />
-This project doesn't use any slow heavy bundlers/transpilers like webpack with babel, to provide the advantageous quick build/restart speed for more agile development iteration.
+This project doesn't use any slow heavy bundlers/transpilers like webpack with babel, to provide the advantageous quick build/restart speed for more agile development iteration by building source with tsc only in watch mode.
 <br />
 Libraries are not bundled and cached by the browser, which allows update game code without loading dependencies again, which provides a better user experience.
 <br />
