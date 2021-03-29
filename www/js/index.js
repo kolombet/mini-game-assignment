@@ -268,9 +268,9 @@ System.register("resources", [], function (exports_8, context_8) {
         }
     };
 });
-System.register("main", ["resources"], function (exports_9, context_9) {
+System.register("icon", ["resources"], function (exports_9, context_9) {
     "use strict";
-    var resources_1, Icon, Main, main;
+    var resources_1, Icon;
     var __moduleName = context_9 && context_9.id;
     return {
         setters: [
@@ -280,87 +280,112 @@ System.register("main", ["resources"], function (exports_9, context_9) {
         ],
         execute: function () {
             Icon = class Icon {
-                constructor(pixiInstance) {
+                constructor(pixiInstance, index, _numbersLayer, _iconsLayer, _darkOverlayLayer) {
+                    this._numbersLayer = _numbersLayer;
+                    this._iconsLayer = _iconsLayer;
+                    this._darkOverlayLayer = _darkOverlayLayer;
                     this.segments = 200;
+                    // private semicircles: Graphics[];
                     this._time = 0;
                     this._previousTick = 0;
-                    this._timeSeconds = 0;
                     this._isCooldown = false;
-                    this.cooldownTime = 10 * 100;
+                    this._cooldownTimeSeconds = Math.round(Math.random() * 30);
+                    this._index = index;
+                    this._cooldownTime = this._cooldownTimeSeconds * 100;
                     this._app = pixiInstance;
-                    this._container = new PIXI.Sprite();
-                    this._app.stage.addChild(this._container);
+                    // this._container = new PIXI.Sprite();
+                    // this._app.stage.addChild(this._container);
+                    const filename = 'icon' + ('' + index).padStart(5, "0");
+                    this._iconImage = resources_1.default.getSprite(filename + '.png');
+                    this._iconImage.interactive = true;
+                    this._iconImage.on('pointertap', this._onSkillClick.bind(this));
+                    this._iconsLayer.addChild(this._iconImage);
+                    // this._container.addChild(this._iconImage);
+                    this._darkOverlay = new PIXI.Graphics();
+                    this._darkOverlay.interactive = false;
+                    this._darkOverlayLayer.addChild(this._darkOverlay);
                     const wholeMask = new PIXI.Graphics();
                     wholeMask.beginFill(0xffffff, 1);
                     wholeMask.drawRect(0, 0, this.width, this.height);
-                    this._container.addChild(wholeMask);
-                    this._container.mask = wholeMask;
-                    this.init();
+                    wholeMask.x = -this.width / 2;
+                    wholeMask.y = -this.height / 2;
+                    this._darkOverlay.addChild(wholeMask);
+                    this._darkOverlay.mask = wholeMask;
+                    const style = new PIXI.TextStyle({
+                        fill: "silver",
+                        fontFamily: "Helvetica",
+                        stroke: "#444",
+                        strokeThickness: 2
+                    });
+                    this._text = new PIXI.Text('', style);
+                    this._text.anchor.set(.5, .5);
+                    this._text.scale.set(.5, .5);
+                    this._text.position.set(this.width / 2, this.height / 2);
+                    this._numbersLayer.addChild(this._text);
+                    this._app.ticker.add(this.mainLoop.bind(this));
+                    this._app.ticker.speed = 1;
                 }
                 setPosition(x, y) {
-                    this._container.position.set(x, y);
+                    // this._container.position.set(x, y);
+                    this._iconImage.position.set(x, y);
+                    this._darkOverlay.position.set(x + this.width / 2, y + this.height / 2);
+                    this._text.position.set(x + this.width / 2, y + this.height / 2);
                 }
                 get width() {
-                    return 64;
+                    return 60;
                 }
                 get height() {
-                    return 64;
+                    return 60;
                 }
                 _setFill(fillAmount) {
                     if (!this._isCooldown)
                         return;
-                    const semicirclesToFill = (this.segments * 2) * fillAmount;
-                    console.log(semicirclesToFill);
                     if (fillAmount >= 1) {
                         this._isCooldown = false;
-                        for (let i = 0; i < this.semicircles.length; i++) {
-                            this.semicircles[i].visible = false;
-                        }
+                        this._text.visible = false;
                         return;
                     }
-                    for (let i = 0; i < this.semicircles.length; i++) {
-                        const isVisible = i > semicirclesToFill;
-                        this.semicircles[i].visible = isVisible;
-                    }
+                    this._darkOverlay.clear();
+                    this._darkOverlay.beginFill(0x000000, .8);
+                    this._darkOverlay.lineStyle(0, 0x000000);
+                    this._darkOverlay.moveTo(0, 0);
+                    this._darkOverlay.arc(0, 0, 42, 0, fillAmount * Math.PI * 2, true);
+                    this._darkOverlay.rotation = -Math.PI / 2;
+                    // this._darkOverlay.position.set(this.width / 2, this.height / 2)
                 }
                 mainLoop(delta) {
                     this._time += delta;
-                    const currentTick = Math.floor(this._time / 10);
-                    if (this._previousTick !== currentTick) {
-                        this._previousTick = currentTick;
-                        this._setFill(this._time / this.cooldownTime);
+                    if (this._isCooldown) {
+                        this._text.text = "" + (this._cooldownTimeSeconds - Math.floor(this._time / 100));
+                        this._setFill(this._time / this._cooldownTime);
                     }
                 }
                 _onSkillClick(e) {
+                    if (this._isCooldown)
+                        return;
                     this._time = 0;
+                    this._text.visible = true;
                     this._isCooldown = true;
                 }
-                init() {
-                    const sW = 64;
-                    const sH = 64;
-                    this.bankImage = resources_1.default.getSprite('icon.png');
-                    this.bankImage.interactive = true;
-                    this.bankImage.on('click', this._onSkillClick.bind(this));
-                    this._container.addChild(this.bankImage);
-                    this.semicircles = [];
-                    for (let i = 0; i < this.segments * 2; i++) {
-                        var semicircle = new PIXI.Graphics();
-                        semicircle.interactive = false;
-                        semicircle.beginFill(0x000000);
-                        semicircle.lineStyle(0, 0x000000);
-                        semicircle.moveTo(0, 0);
-                        semicircle.arc(0, 0, 100, 0, Math.PI / this.segments);
-                        semicircle.position.set(sW / 2, sH / 2);
-                        semicircle.rotation = i * Math.PI / this.segments;
-                        semicircle.alpha = .5;
-                        this.semicircles.push(semicircle);
-                        this._container.addChild(semicircle);
-                        semicircle.visible = false;
-                    }
-                    this._app.ticker.add(this.mainLoop.bind(this));
-                    this._app.ticker.speed = 1;
-                }
             };
+            exports_9("default", Icon);
+        }
+    };
+});
+System.register("main", ["resources", "icon"], function (exports_10, context_10) {
+    "use strict";
+    var resources_2, icon_1, Main, main;
+    var __moduleName = context_10 && context_10.id;
+    return {
+        setters: [
+            function (resources_2_1) {
+                resources_2 = resources_2_1;
+            },
+            function (icon_1_1) {
+                icon_1 = icon_1_1;
+            }
+        ],
+        execute: function () {
             Main = class Main {
                 constructor() {
                     this._apps = [];
@@ -375,7 +400,7 @@ System.register("main", ["resources"], function (exports_9, context_9) {
                             console.error("No canvases found");
                             return;
                         }
-                        yield resources_1.default.init();
+                        yield resources_2.default.init();
                         if (!PIXI.utils.isWebGLSupported()) {
                             console.error("Webgl is not supported");
                             return;
@@ -385,11 +410,12 @@ System.register("main", ["resources"], function (exports_9, context_9) {
                             this._apps.push(new PIXI.Application({ view: canvas }));
                         }
                         const GStats = window.GStats;
-                        if (GStats) {
+                        const overlay = document.getElementById('html-overlay');
+                        if (GStats && overlay) {
                             const pixi_gstats = new GStats.PIXIHooks(this._apps[0]);
                             this.gStats = new GStats.StatsJSAdapter(pixi_gstats);
                             this.gStats.stats.showPanel(0);
-                            document.body.appendChild(this.gStats.stats.dom || this.gStats.stats.domElement);
+                            overlay.appendChild(this.gStats.stats.dom || this.gStats.stats.domElement);
                         }
                         this._apps[0].ticker.add(() => {
                             if (this.gStats) {
@@ -397,10 +423,16 @@ System.register("main", ["resources"], function (exports_9, context_9) {
                             }
                         });
                         this.resize();
-                        for (let i = 0; i < 100; i++) {
-                            const icon = new Icon(this._apps[0]);
+                        this._iconsLayer = new PIXI.Sprite();
+                        this._darkOverlayLayer = new PIXI.Sprite();
+                        this._numbersLayer = new PIXI.Sprite();
+                        for (let i = 0; i < 210; i++) {
+                            const icon = new icon_1.default(this._apps[0], i + 1, this._numbersLayer, this._iconsLayer, this._darkOverlayLayer);
                             this._icons.push(icon);
                         }
+                        this._apps[0].stage.addChild(this._iconsLayer);
+                        this._apps[0].stage.addChild(this._darkOverlayLayer);
+                        this._apps[0].stage.addChild(this._numbersLayer);
                         this.updateIconsPosition();
                         window.addEventListener("resize", this.resize.bind(this));
                     });
@@ -408,30 +440,27 @@ System.register("main", ["resources"], function (exports_9, context_9) {
                 updateIconsPosition() {
                     for (let i = 0; i < this._icons.length; i++) {
                         const icon = this._icons[i];
-                        const xOffset = 10;
-                        const yOffset = 5;
-                        const iconsInRow = Math.floor((this._w - xOffset * 2) / (icon.width + 10));
+                        const xOffset = 4;
+                        const yOffset = 4;
+                        const iconsInRow = Math.floor((this._w - xOffset * 2) / icon.width);
                         const row = Math.floor(i / iconsInRow);
-                        const x = (icon.width + xOffset) * (i % iconsInRow) + xOffset;
-                        const y = yOffset + (icon.height + yOffset) * row;
-                        if (row > 1) {
-                            // debugger;
-                        }
+                        const x = (icon.width + xOffset) * (i % iconsInRow) + xOffset / 2;
+                        const y = (icon.height + yOffset) * row + yOffset / 2;
                         icon.setPosition(x, y);
                     }
-                }
-                update() {
                 }
                 resize() {
                     // this.size.setSize(innerWidth, innerHeight);
                     for (let i = 0; i < this._apps.length; i++) {
                         const canvas = this._canvases[i];
-                        const innerWidth = canvas['offsetWidth'];
-                        const innerHeight = canvas['offsetHeight'];
-                        this._w = window.innerWidth;
-                        this._h = 2000;
+                        // const innerWidth = canvas['offsetWidth'];
+                        // const innerHeight = canvas['offsetHeight'];
+                        this._w = document.body.offsetWidth - 50;
+                        // this._h = document.body.offsetHeight;
+                        this._h = 3500;
+                        canvas['width'] = this._w;
                         canvas['height'] = this._h;
-                        this._apps[i].renderer.resize(window.innerWidth, window.innerHeight);
+                        this._apps[i].renderer.resize(this._w, this._h);
                     }
                     this.updateIconsPosition();
                 }
@@ -447,7 +476,7 @@ System.register("main", ["resources"], function (exports_9, context_9) {
             main = new Main();
             // @ts-ignore
             window.main = main;
-            exports_9("default", main);
+            exports_10("default", main);
         }
     };
 });
